@@ -1,0 +1,35 @@
+Vagrant.configure("2") do |config|
+  BOX_NAME = "bento/ubuntu-24.04"
+
+  config.vm.define "vm1_webserver" do |vm1|
+    vm1.vm.box = BOX_NAME
+    vm1.vm.hostname = "vm1-webserver"
+    vm1.vm.network "forwarded_port", guest: 80, host: 8080
+    vm1.vm.synced_folder "./shared_folder_vm1", "/home/vagrant/shared_folder_vm1"
+    vm1.vm.provision "shell", inline: <<-SHELL
+      sudo apt-get update
+      sudo apt-get install -y nginx
+    SHELL
+  end
+
+  config.vm.define "vm2_private" do |vm2|
+    vm2.vm.box = BOX_NAME
+    vm2.vm.hostname = "vm2-private"
+    vm2.vm.network "private_network", ip: "192.168.56.10"
+    vm2.vm.synced_folder "../src/main", "/home/vagrant/src/main"
+    vm2.vm.provision "shell", path: "provision_vm2.sh"
+  end
+
+  config.vm.define "vm3_public" do |vm3|
+    vm3.vm.box = BOX_NAME
+    vm3.vm.hostname = "vm3-public"
+    vm3.vm.network "public_network", ip: "192.168.1.198", bridge: nil
+    vm3.vm.synced_folder "./shared_folder_vm1", "/home/vagrant/shared_folder_vm3"
+    vm3.vm.provision "shell", inline: <<-SHELL
+      sudo apt-get update
+      sudo apt-get install -y nginx
+      sudo cp /home/vagrant/shared_folder_vm3/index.html /var/www/html/index.html
+      sudo systemctl restart nginx
+    SHELL
+  end
+end
