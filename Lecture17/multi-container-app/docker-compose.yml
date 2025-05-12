@@ -1,0 +1,32 @@
+services:
+  web:
+    image: nginx:latest
+    volumes:
+      - ./web-data:/usr/share/nginx/html:ro
+    expose:
+      - "80"
+    networks:
+      - appnet
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - appnet
+
+  cache:
+    image: redis:alpine
+    networks:
+      - appnet
+
+volumes:
+  db-data:
+  web-data:
+
+networks:
+  appnet:
