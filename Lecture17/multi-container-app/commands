@@ -1,0 +1,17 @@
+docker --version
+docker compose version
+cd Lecture17/multo-container-app
+docker compose up -d
+docker compose ps
+docker network ls
+docker volume ls
+
+docker ps
+docker exec -it b3faf01e5a09  bash
+
+docker compose up -d --scale web=3
+
+
+
+
+
